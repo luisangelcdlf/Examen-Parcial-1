@@ -7,94 +7,103 @@ namespace Examen_1
 {
     public partial class Form1 : Form
     {
-        public Dictionary<string, Moneda> Monedas { get; set; }
-        public Dictionary<string, Dictionary<string, double>> Tasas { get; set; }
+        Dictionary<string, string> simbolos = new Dictionary<string, string>();
+        Dictionary<string, Dictionary<string, double>> tasas = new Dictionary<string, Dictionary<string, double>>();
 
         public Form1()
         {
             InitializeComponent();
-            InicializarMonedas();
-            LlenarComboBox();
-            btnSeleccionar.Click += btnSeleccionar_Click; // Conectar evento
-        }
+            simbolos.Add("MXN", "$");
+            simbolos.Add("USD", "$");
+            simbolos.Add("CAD", "C$");
+            simbolos.Add("EUR", "€");
+            simbolos.Add("JPY", "¥");
 
+            tasas.Add("USD", new Dictionary<string, double>());
+            tasas["USD"].Add("MXN", 19.38);
+            tasas["USD"].Add("CAD", 1.38);
+            tasas["USD"].Add("EUR", 0.92);
+            tasas["USD"].Add("JPY", 149.77);
 
-        private void InicializarMonedas()
-        {
-            Monedas = new Dictionary<string, Moneda>
-            {
-                {"MXN", new Moneda("MXN", "Peso mexicano", "$")},
-                {"USD", new Moneda("USD", "Dólar estadounidense", "$")},
-                {"CAD", new Moneda("CAD", "Dólar canadiense", "C$")},
-                {"EUR", new Moneda("EUR", "Euro", "€")},
-                {"JPY", new Moneda("JPY", "Yen japonés", "¥")}
-            };
+            tasas.Add("MXN", new Dictionary<string, double>());
+            tasas["MXN"].Add("USD", 0.05);
+            tasas["MXN"].Add("CAD", 0.07);
+            tasas["MXN"].Add("EUR", 0.05);
+            tasas["MXN"].Add("JPY", 7.73);
 
-            Tasas = new Dictionary<string, Dictionary<string, double>>
-            {
-                {"USD", new Dictionary<string, double>{{"MXN", 19.38}, {"CAD", 1.38}, {"EUR", 0.92}, {"JPY", 149.77}}},
-                {"MXN", new Dictionary<string, double>{{"USD", 0.05}, {"CAD", 0.07}, {"EUR", 0.05}, {"JPY", 7.73}}},
-                {"CAD", new Dictionary<string, double>{{"USD", 0.72}, {"MXN", 14.05}, {"EUR", 0.66}, {"JPY", 108.56}}},
-                {"EUR", new Dictionary<string, double>{{"USD", 1.09}, {"MXN", 21.13}, {"CAD", 1.50}, {"JPY", 163.31}}},
-                {"JPY", new Dictionary<string, double>{{"USD", 0.0067}, {"MXN", 0.1293}, {"CAD", 0.0092}, {"EUR", 0.0061}}}
-            };
-        }
+            tasas.Add("CAD", new Dictionary<string, double>());
+            tasas["CAD"].Add("USD", 0.72);
+            tasas["CAD"].Add("MXN", 14.05);
+            tasas["CAD"].Add("EUR", 0.66);
+            tasas["CAD"].Add("JPY", 108.56);
 
-        private void LlenarComboBox()
-        {
-            cmbMonedaOrigen.Items.Clear();
-            foreach (var moneda in Monedas.Values)
-            {
-                cmbMonedaOrigen.Items.Add(moneda.Codigo);
-            }
+            tasas.Add("EUR", new Dictionary<string, double>());
+            tasas["EUR"].Add("USD", 1.09);
+            tasas["EUR"].Add("MXN", 21.13);
+            tasas["EUR"].Add("CAD", 1.50);
+            tasas["EUR"].Add("JPY", 163.31);
+
+            tasas.Add("JPY", new Dictionary<string, double>());
+            tasas["JPY"].Add("USD", 0.0067);
+            tasas["JPY"].Add("MXN", 0.1293);
+            tasas["JPY"].Add("CAD", 0.0092);
+            tasas["JPY"].Add("EUR", 0.0061);
+
+            cmbMonedaOrigen.Items.Add("MXN");
+            cmbMonedaOrigen.Items.Add("USD");
+            cmbMonedaOrigen.Items.Add("CAD");
+            cmbMonedaOrigen.Items.Add("EUR");
+            cmbMonedaOrigen.Items.Add("JPY");
             cmbMonedaOrigen.SelectedIndex = 0;
+
+            btnSeleccionar.Click += btnSeleccionar_Click;
         }
 
         private void btnSeleccionar_Click(object sender, EventArgs e)
         {
             grpConversiones.Controls.Clear();
+            double monto = 0;
+            bool esNumero = double.TryParse(txtMonto.Text, out monto);
 
-            if (!double.TryParse(txtMonto.Text, out double monto))
+            if (!esNumero)
             {
-                MessageBox.Show("Ingresa un monto válido");
+                MessageBox.Show("Ingresa un numero que sea valido");
                 return;
             }
 
             string origen = cmbMonedaOrigen.SelectedItem.ToString();
+            Form2 ventana = new Form2();
+            var resultado = ventana.ShowDialog();
 
-            Form2 frm = new Form2();
-            if (frm.ShowDialog() == DialogResult.OK)
+            if (resultado == DialogResult.OK)
             {
-                int y = 20;
-                foreach (string destino in frm.MonedasSeleccionadas)
+                int posY = 20;
+                foreach (string destino in ventana.MonedasSeleccionadas)
                 {
-                    if (destino == origen) continue;
-
-                    if (Tasas[origen].TryGetValue(destino, out double tasa))
+                    if (destino != origen)
                     {
-                        double resultado = monto * tasa;
-                        string simbolo = Monedas[destino].Simbolo;
-
-                        Label lbl = new Label
+                        if (tasas.ContainsKey(origen) && tasas[origen].ContainsKey(destino))
                         {
-                            Text = $"{destino}:",
-                            Location = new Point(10, y)
-                        };
+                            double tasa = tasas[origen][destino];
+                            double total = monto * tasa;
+                            string simbolo = simbolos[destino];
 
-                        TextBox txt = new TextBox
-                        {
-                            Text = $"{simbolo} {resultado:0.00}",
-                            Location = new Point(80, y),
-                            Width = 100
-                        };
+                            Label lbl = new Label();
+                            lbl.Text = destino + ":";
+                            lbl.Location = new Point(10, posY);
 
-                        grpConversiones.Controls.Add(lbl);
-                        grpConversiones.Controls.Add(txt);
-                        y += 30;
+                            TextBox txt = new TextBox();
+                            txt.Text = simbolo + " " + total.ToString("0.00");
+                            txt.Location = new Point(80, posY);
+                            txt.Width = 100;
+
+                            grpConversiones.Controls.Add(lbl);
+                            grpConversiones.Controls.Add(txt);
+                            posY += 30;
+                        }
                     }
                 }
             }
         }
     }
 }
-
