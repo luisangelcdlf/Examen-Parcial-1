@@ -29,12 +29,13 @@
             // 
             // btnAceptar
             // 
-            btnAceptar.Location = new Point(158, 365);
+            btnAceptar.BackColor = SystemColors.Highlight;
+            btnAceptar.Location = new Point(139, 365);
             btnAceptar.Name = "btnAceptar";
-            btnAceptar.Size = new Size(150, 35);
+            btnAceptar.Size = new Size(169, 35);
             btnAceptar.TabIndex = 0;
             btnAceptar.Text = "Aceptar";
-            btnAceptar.UseVisualStyleBackColor = true;
+            btnAceptar.UseVisualStyleBackColor = false;
             // 
             // Form2
             // 

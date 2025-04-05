@@ -58,10 +58,10 @@
             // 
             // btnSeleccionar
             // 
-            btnSeleccionar.BackColor = SystemColors.ControlDark;
+            btnSeleccionar.BackColor = SystemColors.Highlight;
             btnSeleccionar.Location = new Point(400, 110);
             btnSeleccionar.Name = "btnSeleccionar";
-            btnSeleccionar.Size = new Size(150, 35);
+            btnSeleccionar.Size = new Size(170, 35);
             btnSeleccionar.TabIndex = 1;
             btnSeleccionar.Text = "Calcular";
             btnSeleccionar.UseVisualStyleBackColor = false;
